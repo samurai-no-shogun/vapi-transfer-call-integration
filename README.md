@@ -17,6 +17,7 @@ vapi-transfer-call-integration/
 ├── app.py                    # Main Flask application with VAPI webhook handling
 ├── company_directory.json    # Employee directory with contact information
 ├── requirements.txt         # Python dependencies
+├── Procfile                # Railway deployment configuration
 └── .gitignore              # Git ignore configuration
 ```
 
@@ -76,6 +77,8 @@ Example:
 
 ## Usage
 
+### Local Development
+
 1. Start the development server:
 ```bash
 python app.py
@@ -87,6 +90,20 @@ python app.py
 ```
 POST /webhook
 ```
+
+### Railway Deployment
+
+This project is configured for deployment on Railway. The included `Procfile` specifies the command to run the application using Gunicorn.
+
+To deploy on Railway:
+
+1. Create a new project on [Railway](https://railway.app/)
+2. Connect your GitHub repository
+3. Railway will automatically:
+   - Detect the Python environment
+   - Install dependencies from requirements.txt
+   - Use the Procfile to start the application
+4. Your application will be available at the URL provided by Railway
 
 ### Webhook Response Format
 
@@ -127,15 +144,15 @@ To contribute to this project:
 
 ## Production Deployment
 
-For production deployment, it's recommended to:
+For production deployment, we use:
 
-1. Use Gunicorn as the WSGI server:
+1. Gunicorn as the WSGI server (configured in Procfile):
 ```bash
-gunicorn app:app
+gunicorn app:app --bind 0.0.0.0:$PORT
 ```
 
-2. Set up proper security measures:
-   - Use HTTPS
+2. Recommended security measures:
+   - Use HTTPS (handled by Railway)
    - Implement authentication for the webhook endpoint
    - Configure proper firewall rules
 
