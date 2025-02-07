@@ -1,0 +1,27 @@
+{
+  "// This file contains the company employee directory used for call routing": null,
+  "// Each entry includes employee contact information and department": null,
+  "// Fields:": null,
+  "//   id: Unique identifier for the employee": null,
+  "//   name: Employee's full name": null,
+  "//   department: Department they work in": null,
+  "//   phone: Contact phone number in E.164 format": null,
+  "//   email: Corporate email address": null,
+  
+  "employees": [
+    {
+      "id": 1,
+      "name": "Alice Smith",
+      "department": "Sales",
+      "phone": "+15551234567",
+      "email": "alice.smith@simplecom.com"
+    },
+    {
+      "id": 2,
+      "name": "Bob Johnson",
+      "department": "Engineering",
+      "phone": "+15557654321",
+      "email": "bob.johnson@simplecom.com"
+    }
+  ]
+}
