@@ -5,6 +5,7 @@ A Flask-based Voice API integration service for handling call transfers. This se
 ## Features
 
 - Webhook endpoint for handling incoming voice calls
+- API key authentication for security
 - Integration with company employee directory
 - Automatic call routing to available representatives
 - Comprehensive logging system
@@ -18,6 +19,7 @@ vapi-transfer-call-integration/
 ├── company_directory.json    # Employee directory with contact information
 ├── requirements.txt         # Python dependencies
 ├── Procfile                # Railway deployment configuration
+├── .env.example           # Example environment variables
 └── .gitignore              # Git ignore configuration
 ```
 
@@ -49,7 +51,30 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+4. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Update the values in `.env`:
+     ```
+     FLASK_API_KEY=your-secure-api-key-here
+     PORT=5000
+     ```
+
 ## Configuration
+
+### API Key Authentication
+
+The webhook endpoint is protected by API key authentication. You must include the API key in the request headers:
+
+```http
+X-API-Key: your-api-key-here
+```
+
+For development, if no API key is set in the environment, a default key is used:
+```
+your-development-api-key-change-this
+```
+
+Make sure to set a secure API key in production using the `FLASK_API_KEY` environment variable.
 
 ### Company Directory
 
@@ -91,6 +116,14 @@ python app.py
 POST /webhook
 ```
 
+Remember to include the API key in your requests:
+```bash
+curl -X POST http://localhost:5000/webhook \
+  -H "X-API-Key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{"your": "webhook data"}'
+```
+
 ### Railway Deployment
 
 This project is configured for deployment on Railway. The included `Procfile` specifies the command to run the application using Gunicorn.
@@ -99,11 +132,13 @@ To deploy on Railway:
 
 1. Create a new project on [Railway](https://railway.app/)
 2. Connect your GitHub repository
-3. Railway will automatically:
+3. Set up environment variables in Railway:
+   - Add `FLASK_API_KEY` with a secure value
+4. Railway will automatically:
    - Detect the Python environment
    - Install dependencies from requirements.txt
    - Use the Procfile to start the application
-4. Your application will be available at the URL provided by Railway
+5. Your application will be available at the URL provided by Railway
 
 ### Webhook Response Format
 
@@ -132,6 +167,7 @@ The application logs all incoming webhook data and responses to `app.log`. The l
 - Timestamp
 - Log level
 - Message content
+- Authentication attempts and failures
 
 ## Development
 
@@ -151,10 +187,10 @@ For production deployment, we use:
 gunicorn app:app --bind 0.0.0.0:$PORT
 ```
 
-2. Recommended security measures:
-   - Use HTTPS (handled by Railway)
-   - Implement authentication for the webhook endpoint
-   - Configure proper firewall rules
+2. Security measures:
+   - API key authentication (required)
+   - HTTPS (handled by Railway)
+   - Proper firewall rules
 
 ## License
 

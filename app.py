@@ -11,6 +11,7 @@ Key Components:
     - Company directory integration for employee contact information
     - Logging system for tracking all webhook interactions
     - Voice API response formatting for call routing
+    - API key authentication for security
 
 Author: Development Team
 Date: February 2025
@@ -19,6 +20,8 @@ Date: February 2025
 from flask import Flask, request, jsonify
 import json
 import logging
+import os
+from functools import wraps
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -30,6 +33,20 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s: %(message)s'
 )
+
+# Get API key from environment variable or use a default for development
+API_KEY = os.getenv('FLASK_API_KEY', 'your-development-api-key-change-this')
+
+def require_api_key(f):
+    """Decorator to require API key for routes."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        provided_key = request.headers.get('X-API-Key')
+        if not provided_key or provided_key != API_KEY:
+            logging.warning(f"Unauthorized access attempt from {request.remote_addr}")
+            return jsonify({"error": "Unauthorized"}), 401
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Load company directory data from JSON file
 # The directory contains employee contact information for call routing
@@ -47,6 +64,7 @@ except json.JSONDecodeError:
     directory = []
 
 @app.route('/webhook', methods=['POST'])
+@require_api_key
 def webhook():
     """
     Handle incoming VAPI webhooks and route calls to appropriate representatives.
@@ -54,10 +72,14 @@ def webhook():
     This endpoint processes incoming webhook data from the Voice API and determines
     how to route the call based on the company directory configuration.
 
+    Required Headers:
+        X-API-Key: Your API key for authentication
+
     Returns:
         JSON response containing Voice API actions:
         - For successful routing: Talk action followed by Connect action
         - For failures: Talk action with error message
+        - For unauthorized access: 401 Unauthorized
 
     Example Response:
         [
@@ -130,4 +152,6 @@ if __name__ == "__main__":
     # Start development server
     # Note: For production, use a proper WSGI server like Gunicorn
     logging.info("Starting VAPI Transfer Call Integration Service")
+    if API_KEY == 'your-development-api-key-change-this':
+        logging.warning("Using default API key. Set FLASK_API_KEY environment variable in production.")
     app.run(host="0.0.0.0", port=5000)
