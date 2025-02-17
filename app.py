@@ -28,14 +28,14 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s: %(message)s'
 )
 
-# Load secrets from environment variables with development defaults
-API_KEY = os.getenv('FLASK_API_KEY', 'development-api-key-do-not-use-in-production')
-VAPI_SECRET_TOKEN = os.getenv('VAPI_WEBHOOK_SECRET', 'development-webhook-secret-do-not-use-in-production')
+# Load secrets from environment variables
+API_KEY = os.getenv('FLASK_API_KEY')
+VAPI_SECRET_TOKEN = os.getenv('VAPI_WEBHOOK_SECRET')
 
-# In production, we still want to enforce proper API keys
-if os.getenv('FLASK_ENV') == 'production' and (not API_KEY or not VAPI_SECRET_TOKEN or 
-   API_KEY.startswith('development-') or VAPI_SECRET_TOKEN.startswith('development-')):
-    raise ValueError("Production environment requires proper FLASK_API_KEY and VAPI_WEBHOOK_SECRET")
+if not API_KEY or not VAPI_SECRET_TOKEN:
+    logging.warning("No API keys set. Using development defaults - DO NOT USE IN LIVE ENVIRONMENT!")
+    API_KEY = 'development-api-key-do-not-use-in-live'
+    VAPI_SECRET_TOKEN = 'development-webhook-secret-do-not-use-in-live'
 
 # Decorator to enforce API key authentication
 def require_api_key(f):
@@ -145,7 +145,7 @@ def index():
 if __name__ == "__main__":
     logging.info("Starting VAPI Service")
     if API_KEY.startswith('development-'):
-        logging.warning("Using development API key. Set FLASK_API_KEY environment variable in production.")
+        logging.warning("Using development API key. Set FLASK_API_KEY environment variable for live deployment.")
     port = int(os.environ.get("PORT", 8080))
     print(f"\n🚀 VAPI Transfer Call Service is running!")
     print(f"🌐 Server: http://0.0.0.0:{port}\n")
