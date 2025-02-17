@@ -1,0 +1,10 @@
+[build]
+  command = "pip install -r requirements.txt"
+
+[deploy]
+  command = "gunicorn app:app --bind 0.0.0.0:$PORT"
+  
+[container]
+  image = "python:3.10-slim"
+  port = "8080"
+  env = ["FLASK_API_KEY", "VAPI_WEBHOOK_SECRET", "PORT"]
